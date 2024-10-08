@@ -1,0 +1,41 @@
+[package]
+name = "reactor"
+version = "0.1.0"
+description = "Docker desktop client"
+authors = ["you"]
+license = ""
+repository = ""
+default-run = "reactor"
+edition = "2021"
+rust-version = "1.60"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.5.4", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.7.2", features = ["api-all"] }
+reqwest = { version = "0.12", features = ["json", "multipart", "gzip", "stream"] }
+tokio = { version = "1.40", features = ["full"] }
+tokio-util = { version = "0.7.11", features = ["codec"] }
+anyhow-tauri = "1.0.0"
+ts-rs = "9.0"
+thiserror = "1.0"
+rocksdb = "0.22.0"
+itertools = "0.13.0"
+dirs = "5.0"
+rust_socketio = { version = "*", features = ["async"] }
+futures-util = "0.3.30"
+tar = "0.4.41"
+flate2 = "1.0.33"
+lz4 = "1.27.0"
+zip = "2.2.0"
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = [ "tauri/custom-protocol" ]

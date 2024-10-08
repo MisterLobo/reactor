@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+export NO_STRIP=true
+
+bunx tauri build

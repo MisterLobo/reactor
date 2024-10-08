@@ -1,0 +1,182 @@
+'use client'
+
+import './globals.css';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import theme from '../theme';
+import { Button, CssBaseline, NoSsr, ThemeProvider } from '@mui/material';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Lan from '@mui/icons-material/Lan';
+import RocketLaunch from '@mui/icons-material/RocketLaunch';
+import Router from '@mui/icons-material/Router';
+import Settings from '@mui/icons-material/Settings';
+import Source from '@mui/icons-material/Source';
+import Storage from '@mui/icons-material/Storage';
+import { SpeedDialSection } from './components/client';
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import { useEffect, useState } from 'react';
+
+const drawerWidth = 240;
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const links: Record<string, { path: string, icon?: JSX.Element }> = {
+    dashboard: { path: '/', icon: <RocketLaunch className="mr-2" />, },
+    containers: { path: '/containers', icon: <RocketLaunch className="mr-2" />, },
+    images: { path: '/images', icon: <Source className="mr-2" />, },
+    volumes: { path: '/volumes', icon: <Storage className="mr-2" />, },
+    networks: { path: '/networks', icon: <Lan className="mr-2" />, },
+  };
+  const systemLinks: Record<string, { path: string, icon?: JSX.Element }> = {
+    connections: { path: '/connections', icon: <Router className="mr-2" />, },
+    settings: { path: '/settings', icon: <Settings className="mr-2" />, },
+  };
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setMobileOpen(false);
+  };
+
+  const handleDrawerTransitionEnd = () => {
+    setIsClosing(false);
+  };
+
+  const handleDrawerToggle = () => {
+    if (!isClosing) {
+      setMobileOpen(!mobileOpen);
+    }
+  };
+
+  return (
+    <html lang="en">
+      <body>
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <NoSsr>
+              <Box sx={{ display: 'flex' }} className="mt-16">
+                <Box
+                  component="nav"
+                  sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+                >
+                  <Drawer
+                    variant="temporary"
+                    open={mobileOpen}
+                    onTransitionEnd={handleDrawerTransitionEnd}
+                    onClose={handleDrawerClose}
+                    ModalProps={{
+                      keepMounted: true,
+                    }}
+                    sx={{
+                      display: { xs: 'block', sm: 'none' },
+                      '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
+                    }}
+                  >
+                    <Toolbar />
+                    <Box sx={{ overflow: 'auto' }}>
+                      <List>
+                        {Object.entries(links).map(([key, value], index) => (
+                          <ListItem key={key} disablePadding>
+                            <ListItemButton href={value.path}>
+                              <ListItemIcon>
+                                {value.icon}
+                              </ListItemIcon>
+                              <ListItemText primary={key} className="capitalize" />
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                      <Divider />
+                      <List>
+                        {Object.entries(systemLinks).map(([key, value], index) => (
+                          <ListItem key={key} disablePadding>
+                            <ListItemButton href={value.path}>
+                              <ListItemIcon>
+                                {value.icon}
+                              </ListItemIcon>
+                              <ListItemText primary={key} className="capitalize" />
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  </Drawer>
+                  <Drawer
+                    variant="permanent"
+                    sx={{
+                      display: { xs: 'none', sm: 'block' },
+                      '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                    }}
+                    open
+                  >
+                    <Toolbar />
+                    <Box sx={{ overflow: 'auto' }}>
+                      <List>
+                        {Object.entries(links).map(([key, value], index) => (
+                          <ListItem key={key} disablePadding>
+                            <ListItemButton href={value.path}>
+                              <ListItemIcon>
+                                {value.icon}
+                              </ListItemIcon>
+                              <ListItemText primary={key} className="capitalize" />
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                      <Divider />
+                      <List>
+                        {Object.entries(systemLinks).map(([key, value], index) => (
+                          <ListItem key={key} disablePadding>
+                            <ListItemButton href={value.path}>
+                              <ListItemIcon>
+                                {value.icon}
+                              </ListItemIcon>
+                              <ListItemText primary={key} className="capitalize" />
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  </Drawer>
+                </Box>
+                <Box component="main" sx={{ flexGrow: 1, p: 3, height: '100vh' }}>
+                  <SnackbarProvider
+                    autoHideDuration={3000}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    maxSnack={3}
+                    preventDuplicate
+                    action={(snackId) => (
+                      <Button onClick={() => closeSnackbar(snackId)}>
+                        Dismiss
+                      </Button>
+                    )}
+                  >
+                    {children}
+                  </SnackbarProvider>
+                </Box>
+                <SpeedDialSection />
+              </Box>
+            </NoSsr>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
+      </body>
+    </html>
+  );
+}

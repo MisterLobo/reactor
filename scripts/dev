@@ -1,0 +1,9 @@
+#!/bin/sh
+
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+
+cd src-tauri
+./scripts/gen
+
+cd ..
+bunx tauri dev
