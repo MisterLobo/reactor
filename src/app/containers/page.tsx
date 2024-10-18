@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ContainerCard from '../components/container-card';
 import Toolbar from '@mui/material/Toolbar';
-import { AppBar, Grid2 as Grid, Typography } from '@mui/material';
+import { AppBar, Box, Grid2 as Grid, Typography } from '@mui/material';
 import { Search, SearchIconWrapper, StyledInputBase } from '../components/client';
 import SearchIcon from '@mui/icons-material/Search';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { ContainerSummary } from '../lib/bindings/ContainerSummary';
 import { useSearchParams } from 'react-router-dom';
 import ContainerDetails from '../components/container';
@@ -98,11 +98,13 @@ export default function ContainersPage() {
       </AppBar>
       {showDetails ?
       <ContainerDetails id={containerId} /> :
-      <Grid container spacing={2}>
-      {loading ? <p>loading</p> : containers?.map((c: ContainerSummary) => (
-        <ContainerCard key={c.id} name={c.name} command={c.command} id={c.id} created={c.created as string} status={c.status as string} state={c.state as string} image={c.image} />
-      ))}
-      </Grid>}
+      <Box component="div" className="pb-5">
+        <Grid container spacing={2}>
+        {loading ? <p>loading</p> : containers?.map((c: ContainerSummary) => (
+          <ContainerCard key={c.id} name={c.name} command={c.command} id={c.id} created={c.created as string} status={c.status as string} state={c.state as string} image={c.image} />
+        ))}
+        </Grid>
+      </Box>}
     </>
   );
 }

@@ -15,7 +15,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Info, Storage } from '@mui/icons-material';
 import InspectObjectDialog from './modals/inspect';
 import { InspectObjectResponse } from '../lib/bindings/InspectObjectResponse';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 
 export type VolumeCardProps = {
   id: string,
@@ -42,7 +42,7 @@ export default function VolumeCard({ id, name, created, mountPoint }: VolumeCard
 
   return (
     <>
-    <Card sx={{ width: 345 }}>
+    <Card sx={{ width: 345 }} className="flex flex-col relative space-y-2">
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
@@ -56,15 +56,15 @@ export default function VolumeCard({ id, name, created, mountPoint }: VolumeCard
         }
         title={name}
         subheader={created}
-        className="break-all"
+        className="break-all h-max"
       />
-      <CardContent>
+      <CardContent className="h-32">
         <Typography variant="body2" color="text.secondary" className="break-all">
           <Storage className="mr-2" />
           {mountPoint}
         </Typography>
       </CardContent>
-      <CardActions disableSpacing>
+      <CardActions disableSpacing className="absolute bottom-0">
         <IconButton aria-label="add to favorites" disabled>
           <FavoriteIcon />
         </IconButton>

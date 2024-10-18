@@ -29,8 +29,8 @@ import Home from '@mui/icons-material/Home';
 import SettingsDialog from './components/modals/settings';
 import ManageConnectionsDialog from './components/modals/connections';
 import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api';
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
+import { invoke } from '@tauri-apps/api/core';
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
 
 const drawerWidth = 240;
 
@@ -72,7 +72,7 @@ export default function RootLayout({
   }, []);
   const listeners = useCallback(async () => {
     await listen<{ ok: string, error?: string }>('ping', ({ payload }) => {
-      console.log('[ping]:', payload);
+      // console.log('[ping]:', payload);
       if (!payload.ok) {
         setError(payload.error)
         notify('Error', payload.error as string)

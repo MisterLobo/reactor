@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { Box, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useForm } from 'react-hook-form';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { ContainerRenameParams } from '@/bindings/ContainerRenameParams';
 
 type ContainerRenameProps = {

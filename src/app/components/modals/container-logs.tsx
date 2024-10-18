@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { Socket } from 'socket.io-client';
 import { ContainerLogsResponse } from '@/bindings/ContainerLogsResponse';
 import { Terminal } from '@xterm/xterm';

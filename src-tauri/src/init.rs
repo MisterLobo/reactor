@@ -1,7 +1,9 @@
 use rocksdb::DB;
 
-use crate::{common::{self, get_ws_host}, config::{API_HOST, WS_HOST}};
-
+use crate::{
+  common::{self, get_ws_host},
+  config::{API_HOST, WS_HOST},
+};
 
 pub fn init_environment() {
   let conf = common::get_store_path();

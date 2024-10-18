@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -16,7 +18,8 @@ pub enum Error {
 impl serde::Serialize for Error {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
-  S: serde::Serializer {
+    S: serde::Serializer,
+  {
     serializer.serialize_str(self.to_string().as_ref())
   }
 }
@@ -150,6 +153,8 @@ pub struct ContainerRunParams {
   pub env: Vec<String>,
   pub working_dir: Option<String>,
   pub shell: Option<String>,
+  pub mounts: Option<Vec<String>>,
+  pub ports: Option<HashMap<String, PortBinding>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
@@ -368,6 +373,14 @@ pub struct ContainerExecCommandParams {
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerLsParams {
+  pub working_dir: String,
+  pub user: Option<String>,
+  pub ls_args: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct ContainerRenameResponse {
   pub id: Option<String>,
 }
@@ -410,10 +423,10 @@ pub struct ConnectionUpdateParams {
 impl Payload<ConnectionUpsertBody> for ConnectionUpdateParams {
   fn payload(&self) -> ConnectionUpsertBody {
     ConnectionUpsertBody {
-      name: self.name.clone().unwrap(),
-      socket_type: self.socket_type.clone().unwrap(),
-      socket_address: self.socket_address.clone(),
-      is_default: self.is_default,
+        name: self.name.clone().unwrap(),
+        socket_type: self.socket_type.clone().unwrap(),
+        socket_address: self.socket_address.clone(),
+        is_default: self.is_default,
     }
   }
 }
@@ -535,4 +548,25 @@ pub struct ContainerExportEventParams {
 pub struct ConnectionTestResponse {
   pub ok: Option<bool>,
   pub error: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct MountPoint {
+  mount_type: String,
+  source: String,
+  destination: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct PortBinding {
+  host_ip: String,
+  port: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct PortBindings {
+  bindings: HashMap<String, PortBinding>,
 }

@@ -8,14 +8,13 @@ import { SyntheticEvent, useCallback, useEffect, useState } from 'react';
 import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Tab, TextField, Typography } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { DockerConnection } from '@/bindings/DockerConnection';
 import { ConnectionCreateParams } from '@/bindings/ConnectionCreateParams';
 import { ConnectionUpdateParams } from '@/bindings/ConnectionUpdateParams';
 import { getSocket } from '../../../app/lib/ws';
 import { ConnectionTestParams } from '@/bindings/ConnectionTestParams';
 import { useSnackbar } from 'notistack';
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
 import { ConnectionTestResponse } from '@/bindings/ConnectionTestResponse';
 
 /* const blue = {
@@ -206,7 +205,7 @@ type ConnectionsFormProps = {
 }
 
 function ConnectionForm({ id, name, socketAddress, socketType, isDefault, onSave }: ConnectionsFormProps) {
-  const { register, setValue, formState, handleSubmit, reset, trigger } = useForm<ConnectionsFormProps>({
+  const { register, setValue, getValues, formState, handleSubmit, reset, trigger } = useForm<ConnectionsFormProps>({
     defaultValues: {
       name,
       socketType,
@@ -231,7 +230,7 @@ function ConnectionForm({ id, name, socketAddress, socketType, isDefault, onSave
       })
   }, [])
 
-  const notify = useCallback(async (title: string, body: string) => {
+  /* const notify = useCallback(async (title: string, body: string) => {
     let permissionGranted = await isPermissionGranted();
     if (!permissionGranted) {
       const permission = await requestPermission();
@@ -243,7 +242,7 @@ function ConnectionForm({ id, name, socketAddress, socketType, isDefault, onSave
         body,
       });
     }
-  }, []);
+  }, []); */
   const saveForm: SubmitHandler<ConnectionsFormProps> = async (values: ConnectionsFormProps) => {
     console.log('[values]:', values);
     setMessage(undefined);
@@ -293,8 +292,8 @@ function ConnectionForm({ id, name, socketAddress, socketType, isDefault, onSave
   }
 
   const testClicked = async () => {
-    const connection_string = `${socketType}://${socketAddress}`;
-    console.log('[test]:', connection_string);
+    const values = getValues()
+    const connection_string = `${sockType}://${values.socketAddress}`;
     const params = {} as ConnectionTestParams;
     if (id) {
       params.connection = id;
@@ -352,7 +351,7 @@ function ConnectionForm({ id, name, socketAddress, socketType, isDefault, onSave
         <Button variant="contained" type="submit" disabled={!formState.isValid || saving}>Save changes</Button>
         <Button type="button" onClick={testClicked}>Test</Button>
         <Button type="reset" onClick={resetForm}>Reset</Button>
-        {id && <Button className="float-right" disabled={!formState.isValid || saving} onClick={makeDefault}>Make default</Button>}
+        {(id && !isDefault) && <Button className="float-right" disabled={!formState.isValid || saving} onClick={makeDefault}>Make default</Button>}
       </Box>
       {message &&
       <Typography component="p" sx={{ my: 5, color: statusOk ? 'green' : 'red' }}>{ message }</Typography>

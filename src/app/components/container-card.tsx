@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Apps, BookmarkBorder, Code, Dangerous, Delete, Difference, Edit, FolderOpen, FolderZip, History, Info, PlayCircleFilled, QueryStats, RestartAlt, Schedule, Source, Stop, Terminal } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { ContainerStopResponse } from '../lib/bindings/ContainerStopResponse';
 import InspectObjectDialog from './modals/inspect';
 import { InspectObjectResponse } from '../lib/bindings/InspectObjectResponse';
@@ -18,7 +18,7 @@ import { Box, Tooltip } from '@mui/material';
 import ContainerStatsDialog from './modals/container-stats';
 import ContainerLogsDialog from './modals/container-logs';
 import ContainerRenameDialog from './modals/container-rename';
-import { save } from '@tauri-apps/api/dialog';
+import { save } from '@tauri-apps/plugin-dialog';
 import { ContainerExportParams } from '@/bindings/ContainerExportParams';
 import { listen } from '@tauri-apps/api/event';
 import { ContainerDiffResponse } from '@/bindings/ContainerDiffResponse';
@@ -307,7 +307,7 @@ export default function ContainerCard({ name, id, created, command, state, statu
         }
         title={<Link to={{
           pathname: '/containers/details',
-          search: `?cid=${id}&name=${name}`,
+          search: `?cid=${id}`,
         }}>{ containerName }</Link>}
         subheader={created}
         className="break-all"

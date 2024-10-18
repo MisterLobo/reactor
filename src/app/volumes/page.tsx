@@ -1,10 +1,10 @@
 import Toolbar from '@mui/material/Toolbar';
 import VolumeCard from '../components/volume-card';
-import { AppBar, Grid2, Typography } from '@mui/material';
+import { AppBar, Box, Grid2 as Grid, Typography } from '@mui/material';
 import { Search, SearchIconWrapper, StyledInputBase } from '../components/client';
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { VolumeSummary } from '../lib/bindings/VolumeSummary';
 
 export default function VolumesPage() {
@@ -50,11 +50,13 @@ export default function VolumesPage() {
           </Search>
         </Toolbar>
       </AppBar>
-      <Grid2 container spacing={2}>
-      {volumes.map((c: VolumeSummary) => (
-        <VolumeCard key={c.name as string} id={c.id as string} name={c.name as string} mountPoint={c.mount_point as string} created={c.created as string} />
-      ))}
-      </Grid2>
+      <Box component="div" className="pb-5">
+        <Grid container spacing={2}>
+        {volumes.map((c: VolumeSummary) => (
+          <VolumeCard key={c.name as string} id={c.id as string} name={c.name as string} mountPoint={c.mount_point as string} created={c.created as string} />
+        ))}
+        </Grid>
+      </Box>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid2';
 import { useForm } from 'react-hook-form';
 import { ImagePullParams } from '../../lib/bindings/ImagePullParams';
 import { ImagePullResponse } from '../../lib/bindings/ImagePullResponse';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { getSocket } from '../../lib/ws';
 
 type PullImageProps = {

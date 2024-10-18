@@ -9,7 +9,7 @@ import { Box, Checkbox, FormControlLabel, Grid2 as Grid, TextField } from '@mui/
 import '@xterm/xterm/css/xterm.css';
 import { useForm } from 'react-hook-form';
 import { ContainerExecParams } from '@/bindings/ContainerExecParams';
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { getSocket } from '../../../app/lib/ws';
 import TerminalDialog from './terminal';
 

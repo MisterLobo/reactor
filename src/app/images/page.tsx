@@ -1,11 +1,11 @@
 import Toolbar from '@mui/material/Toolbar';
 import ImageCard from '../components/image-card';
-import { AppBar, Grid2, Typography } from '@mui/material';
+import { AppBar, Box, Grid2 as Grid, Typography } from '@mui/material';
 import { Search, SearchIconWrapper, StyledInputBase } from '../components/client';
 import SearchIcon from '@mui/icons-material/Search';
 import { ImageSummary } from '../lib/bindings/ImageSummary';
 import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { useSnackbar } from 'notistack';
 
 export default function ImagesPage() {
@@ -55,11 +55,13 @@ export default function ImagesPage() {
           </Search>
         </Toolbar>
       </AppBar>
-      <Grid2 container spacing={2}>
-      {images.map((c: ImageSummary) => (
-        <ImageCard key={c.id} id={c.id} repo={c.repo} size={c.size} created={c.created} />
-      ))}
-      </Grid2>
+      <Box component="div" className="pb-5">
+        <Grid container spacing={2}>
+        {images.map((c: ImageSummary) => (
+          <ImageCard key={c.id} id={c.id} repo={c.repo} size={c.size} created={c.created} />
+        ))}
+        </Grid>
+      </Box>
     </div>
     </>
   );

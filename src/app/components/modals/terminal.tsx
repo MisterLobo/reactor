@@ -9,7 +9,7 @@ import { Box } from '@mui/material';
 import { Terminal } from '@xterm/xterm';
 import '@xterm/xterm/css/xterm.css';
 import { ContainerExecParams } from '@/bindings/ContainerExecParams';
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 
 type TerminalProps = {
   cid: string,

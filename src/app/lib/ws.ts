@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { io, Socket } from 'socket.io-client';
 
 let _socket: Socket | undefined

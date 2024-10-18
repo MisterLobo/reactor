@@ -6,12 +6,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useState } from 'react';
 import { Box, Grid2 as Grid, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { invoke } from '@tauri-apps/api/tauri';
-import { open } from '@tauri-apps/api/dialog';
+import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 import { homeDir } from '@tauri-apps/api/path';
 import { ImageBuildParams } from '../../lib/bindings/ImageBuildParams';
 import { LoadingButton } from '@mui/lab';
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
 
 type PullImageProps = {
   visible: boolean,

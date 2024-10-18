@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import RunContainerDialog from './modals/run-container';
 import { Chip } from '@mui/material';
 import { InspectObjectResponse } from '../lib/bindings/InspectObjectResponse';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import InspectObjectDialog from './modals/inspect';
 
 export type ImageCardProps = Partial<ImageSummary> & {

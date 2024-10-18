@@ -97,3 +97,72 @@ export type DockerEvent = {
   time?: number,
   timeNano?: number,
 }
+
+export type PortBinding = { HostIp: string, HostPort: string };
+export type PortBindings = Record<string, PortBinding[]>;
+export type MountPoint = {
+  Name: string,
+  Type: string,
+  Source: string,
+  Destination: string,
+  Driver: string,
+  Mode: string,
+  RW: boolean,
+  Propagation: string,
+}
+
+export type ContainerJson = {
+  Id: string,
+  Name: string,
+  Path?: string,
+  Args?: string[],
+  Image?: string,
+  Created?: string,
+  Mounts?: MountPoint[],
+  State?: {
+    Status: string,
+    Running: boolean,
+    Paused: boolean,
+    Restarting: boolean,
+    OOMKilled: boolean,
+    Dead: boolean,
+    Pid: number,
+    ExitCode: number,
+    Error: string,
+    StartedAt: string,
+    FinishedAt: string,
+  },
+  HostConfig?: {
+    Binds?: string[],
+    PortBindings?: PortBindings,
+  } & Record<string, any>,
+  Config?: {
+    Hostname?: string,
+    Domainname?: string,
+    User?: string,
+    AttachStdin?: boolean,
+    AttachStdout?: boolean,
+    AttachStderr?: boolean,
+    Tty?: boolean,
+    OpenStdin?: boolean,
+    StdinOnce?: boolean,
+    Env?: string[],
+    Cmd?: string[],
+    Image?: string,
+    WorkingDir?: string,
+    Entrypoint?: string,
+    ExposedPorts?: Record<string, any>,
+    Volumes?: Record<string, any>[],
+  } & Record<string, any>,
+  NetworkSettings?: {
+    MacAddress?: string,
+    IPAddress?: string,
+  } & Record<string, any>,
+  Platform?: string,
+  ResolveConfPath?: string,
+  HostnamePath?: string,
+  HostsPath?: string,
+  LogPath?: string,
+  RestartCount?: number,
+  ExecIDs?: string[],
+} & {[key:string]: any}

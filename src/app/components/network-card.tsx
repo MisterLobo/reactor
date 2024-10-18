@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Info } from '@mui/icons-material';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import InspectObjectDialog from './modals/inspect';
 import { InspectObjectResponse } from '../lib/bindings/InspectObjectResponse';
 import { useState } from 'react';
