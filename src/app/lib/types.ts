@@ -166,3 +166,15 @@ export type ContainerJson = {
   RestartCount?: number,
   ExecIDs?: string[],
 } & {[key:string]: any}
+
+export type ImagePullStatus = 'Pulling fs layer' | 'waiting' | 'Downloading' | 'Verifying checksum' | 'Download complete';
+export type ImagePullProgressDetail = {
+  current: number,
+  total: number,
+}
+export type ImagePullProgress = {
+  id: string,
+  status: ImagePullStatus,
+  progress: string,
+  progressDetail: ImagePullProgressDetail | {},
+}

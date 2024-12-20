@@ -67,7 +67,6 @@ export default function HomePage() {
     console.log('[sub] subbed:', subbed);
   }, []);
   useEffect(() => {
-    
     subscribe().catch(console.error)
   }, [])
   useEffect(() => {
@@ -77,7 +76,7 @@ export default function HomePage() {
     ]).catch(console.error);
     return () => {
       unlisteners
-        .then((p) => Promise.all(p))
+        .then((p) => Promise.allSettled(p))
         .catch(console.error);
     };
   }, []);
