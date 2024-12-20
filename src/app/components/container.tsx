@@ -108,11 +108,13 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
         await Promise.all([
           inspect(),
           stats(),
-          top(),
         ]);
+        if (containerState === 'running') {
+          top();
+        }
       })()
     }
-  }, [containerId])
+  }, [containerId, containerState])
 
   useEffect(() => {
     const listeners = async () => {
@@ -297,6 +299,14 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
     remove().catch(console.error)
   }
 
+  const execOnClicked = async () => {
+    setExecVisible(true);
+  }
+
+  const diffOnClicked = async () => {
+    setDiffVisible(true);
+  }
+
   return (
     <>
     <AppBar
@@ -324,7 +334,7 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
       </Toolbar>
     </AppBar>
     <Grid container spacing={2}>
-      <Grid size={3}>
+      <Grid size={4}>
         <Card className="w-100 h-80">
           <CardContent className="h-64">
             <Box component="div" className="space-y-2">
@@ -375,12 +385,12 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
                 </IconButton>
               </Tooltip>
               <Tooltip title="exec">
-                <IconButton aria-label="exec" disabled={actionInProgress}>
+                <IconButton aria-label="exec" onClick={execOnClicked} disabled={actionInProgress}>
                   <Terminal />
                 </IconButton>
               </Tooltip>
               <Tooltip title="diff">
-                <IconButton aria-label="diff" disabled={actionInProgress}>
+                <IconButton aria-label="diff" onClick={diffOnClicked} disabled={actionInProgress}>
                   <Difference />
                 </IconButton>
               </Tooltip>
@@ -404,7 +414,7 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
               </IconButton>
             </Tooltip>
             <Tooltip title="explorer">
-              <IconButton aria-label="explorer" disabled={actionInProgress}>
+              <IconButton aria-label="explorer" onClick={() => setExplorerVisible(true)} disabled={actionInProgress}>
                 <FolderOpen />
               </IconButton>
             </Tooltip>
@@ -422,27 +432,27 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
           </CardActions>
         </Card>
       </Grid>
-      <Grid size={3}>
+      <Grid size={4}>
         <Card className="w-100 h-80">
           <CardContent>
           </CardContent>
           <CardActions></CardActions>
         </Card>
       </Grid>
-      <Grid size={3}>
+      <Grid size={4}>
         <Card className="w-100 h-80">
           <CardContent>
           </CardContent>
           <CardActions></CardActions>
         </Card>
       </Grid>
-      <Grid size={3}>
+      {/* <Grid size={3}>
         <Card className="w-100 h-80">
           <CardContent>
           </CardContent>
           <CardActions></CardActions>
         </Card>
-      </Grid>
+      </Grid> */}
       <Grid size={12}>
         <Card sx={{ flex: 1, width: '100%', height: '100vh' }}>
           <CardContent className="p-5">
@@ -482,7 +492,7 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
                     </AccordionSummary>
                     <AccordionDetails>
                       {containerJson?.Mounts?.length ? containerJson?.Mounts?.map((m, i) => (
-                        <Typography key={i}>{ m.Name }</Typography>
+                        <Typography key={i}>{ m.Name } { m.Source }:{ m.Destination }</Typography>
                       )) :
                       <Typography>
                         No items to show
@@ -549,7 +559,7 @@ export default function ContainerDetails({ id, name }: { id?: string, name?: str
               </TabPanel>
               <TabPanel value="top" className="h-full overflow-auto">
                 <Box sx={{ flexGrow: 1 }} className="h-full">
-                  {container?.state === 'running' ? <TableContainer component={Paper}>
+                  {containerState === 'running' ? <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="top">
                       <TableHead>
                         <TableRow>

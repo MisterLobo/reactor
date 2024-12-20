@@ -6,6 +6,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useCallback, useState } from 'react';
 import { LoadingButton } from '@mui/lab';
+import { invoke } from '@tauri-apps/api/core';
+import { ImagePruneResponse } from '@/bindings/ImagePruneResponse';
+import { ContainerPruneResponse } from '@/bindings/ContainerPruneResponse';
 
 type PullImageProps = {
   repo?: string,
@@ -28,13 +31,29 @@ export default function PruneDialog({ visible, onClose }: PullImageProps) {
   };
 
   const pruneContainers = useCallback(async () => {
-    setActionInProgress(true);
     setPruningContainers(true);
+    setActionInProgress(true);
+
+    const { report } = await invoke('containers_prune') as ContainerPruneResponse;
+    console.log('[prune#report]:', report);
+
+    setPruningContainers(false);
+    setActionInProgress(false);
+
+    onClose();
   }, []);
 
   const pruneImages = useCallback(async () => {
-    setActionInProgress(true);
     setPruningImages(true);
+    setActionInProgress(true);
+
+    const { report } = await invoke('images_prune') as ImagePruneResponse;
+    console.log('[prune#report]:', report);
+
+    setPruningImages(false);
+    setActionInProgress(false);
+
+    onClose();
   }, []);
 
   const pruneVolumes = useCallback(async () => {

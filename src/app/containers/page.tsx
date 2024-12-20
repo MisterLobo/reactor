@@ -10,12 +10,15 @@ import { useSearchParams } from 'react-router-dom';
 import ContainerDetails from '../components/container';
 import { listen } from '@tauri-apps/api/event';
 import _ from 'lodash';
+import { ContainerPruneResponse } from '@/bindings/ContainerPruneResponse';
+import { ContainerPruneReport } from '@/bindings/ContainerPruneReport';
 
 export default function ContainersPage() {
   const [searchParams] = useSearchParams();
   const [containers, setContainers] = useState<ContainerSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [changeName, _setChangeName] = useState<string>();
+  const [_pruneReport, setPruneReport] = useState<ContainerPruneReport>();
   const { showDetails, containerId } = useMemo(() => {
     const showDetails = searchParams.has('cid');
     const containerId = searchParams.get('cid') as string;
@@ -56,6 +59,10 @@ export default function ContainersPage() {
       if (payload.id === 'sub') {
         list_containers().catch(console.error);
       }
+    });
+    await listen<ContainerPruneResponse>('containers-prune', ({ payload }) => {
+      setPruneReport(payload.report as ContainerPruneReport);
+      list_containers().catch(console.error);
     });
   }, [list_containers])
 

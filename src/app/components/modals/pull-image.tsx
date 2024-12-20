@@ -9,9 +9,10 @@ import { Box, LinearProgress, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useForm } from 'react-hook-form';
 import { ImagePullParams } from '../../lib/bindings/ImagePullParams';
-import { ImagePullResponse } from '../../lib/bindings/ImagePullResponse';
 import { invoke } from '@tauri-apps/api/core';
 import { getSocket } from '../../lib/ws';
+import { ImagePullProgress } from '@/bindings/ImagePullProgress';
+import { ImagePullStatus } from '@/app/lib/types';
 
 type PullImageProps = {
   repo?: string,
@@ -24,15 +25,12 @@ type PullImageFormProps = {
 }
 
 export default function PullImageDialog({ repo, visible, onClose }: PullImageProps) {
-  const { register, formState, getValues, reset } = useForm<PullImageFormProps>({
+  const { register, formState, getValues } = useForm<PullImageFormProps>({
     defaultValues: {
       repo,
     },
   });
-  const [progressTotal, setProgressTotal] = useState(0);
-  const [progressCurrent, setProgressCurrent] = useState(0);
-  const [progressStatus, _setProgressStatus] = useState('ready');
-  const [progressId, _setProgressId] = useState<string>();
+  const [progressState, setProgressState] = useState<ImagePullProgress>();
   const [_open, setOpen] = useState(visible);
   const [scroll, _setScroll] = useState<DialogProps['scroll']>('paper');
   const [actionInProgress, setActionInProgress] = useState(false);
@@ -42,8 +40,6 @@ export default function PullImageDialog({ repo, visible, onClose }: PullImagePro
       .then(socket => {
         socket.on('image:pull', ({ data }: any) => {
           console.log('[pull]:', data);
-          setProgressCurrent(data.progressDetail?.current);
-          setProgressTotal(data.progressDetail?.total);
         })
       })
     
@@ -61,13 +57,20 @@ export default function PullImageDialog({ repo, visible, onClose }: PullImagePro
       repo,
       tag,
     };
+    setProgressState(undefined);
     setActionInProgress(true);
-    const image: ImagePullResponse = await invoke('pull_image', { params });
-    if (image.status === 'ok') {
-      reset();
-      setActionInProgress(false);
-      handleClose();
+    const logs: string[] = await invoke('pull_image', { params });
+    console.log('[pull#res]:', logs);
+    for (const log of logs) {
+      try {
+        const jlog = JSON.parse(log) as ImagePullProgress;
+        console.log('[log]:', jlog);
+        setTimeout(() => {
+          setProgressState(jlog);
+        }, 500);
+      } catch {}
     }
+    setActionInProgress(false);
   }
 
   return (
@@ -92,21 +95,19 @@ export default function PullImageDialog({ repo, visible, onClose }: PullImagePro
               {...register('repo', { required: true })}
             />
           </Grid>
-          {actionInProgress &&
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Box sx={{ width: '100%', mr: 1 }}>
-              {progressCurrent && progressTotal && <LinearProgress variant="buffer" value={progressCurrent} valueBuffer={progressTotal} />}
+              {(actionInProgress && Number(progressState?.progressDetail?.total) > 0) && <LinearProgress variant="buffer" value={Number(progressState?.progressDetail?.current ?? 0)} valueBuffer={Number(progressState?.progressDetail?.total ?? 0)} />}
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {`${progressId}: ${progressStatus}`}
+                {progressState?.status}
               </Typography>
             </Box>
             <Box sx={{ minWidth: 35 }}>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {progressTotal > 0 ? `${Math.round(progressCurrent/progressTotal)}` : '0%'}
+                {(progressState?.status as ImagePullStatus === 'Downloading' && (progressState?.progressDetail?.total ?? 0) > 0) && `${Math.round(Number(progressState?.progressDetail?.current ?? 0)/Number(progressState?.progressDetail?.total ?? 0))}`}
               </Typography>
             </Box>
           </Box>
-          }
         </Box>
       </DialogContent>
       <DialogActions>
