@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, num::NonZeroU16};
 
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -138,7 +139,6 @@ pub struct InspectObjectResponse {
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct ContainerRunParams {
   pub image: String,
-  #[serde(skip_serializing_if = "Option::is_none")]
   pub name: Option<String>,
   pub cmd: Option<String>,
   pub tty: Option<bool>,
@@ -153,9 +153,17 @@ pub struct ContainerRunParams {
   pub env: Vec<String>,
   pub working_dir: Option<String>,
   pub shell: Option<String>,
-  pub mounts: Option<Vec<String>>,
-  pub ports: Option<HashMap<String, PortBinding>>,
+  pub binds: Option<Vec<String>>,
+  pub volumes: Option<HashMap<String, MountPoint>>,
+  pub port_bindings: Option<HashMap<String, Vec<PortBinding>>>,
+  pub exposed_ports: Option<HashMap<String, Struct>>,
+  pub explorable: Option<bool>,
+  pub ssh: Option<bool>,
 }
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct Struct {}
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
@@ -227,16 +235,21 @@ pub struct ImagePullResponse {
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct ProgressDetail {
-  current: Option<i64>,
-  total: Option<i64>,
+  current: i64,
+  total: i64,
+}
+
+pub enum ImagePullProgressStatus {
+  Downloading,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
+#[serde(rename_all = "camelCase")]
 pub struct ImagePullProgress {
   id: Option<String>,
-  status: Option<String>,
-  progress_detail: ProgressDetail,
+  status: String,
+  progress_detail: Option<ProgressDetail>,
   progress: Option<String>,
 }
 
@@ -288,6 +301,13 @@ pub struct ContainerStatsParams {
 pub struct ContainerExportParams {
   pub id: String,
   pub file_path: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerGetArchiveParams {
+  pub id: String,
+  pub src_path: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
@@ -344,6 +364,111 @@ pub struct ContainerExecParams {
   pub user: Option<String>,
 }
 
+#[derive(Debug, Deserialize, Serialize, TS, Default)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerExecBuilder {
+  id: Option<String>,
+  cmd: Option<String>,
+  tty: Option<bool>,
+  stdout: Option<bool>,
+  stdin: Option<bool>,
+  stderr: Option<bool>,
+  detach: Option<bool>,
+  stream: Option<bool>,
+  socket: Option<bool>,
+  privileged: Option<bool>,
+  demux: Option<bool>,
+  environment: Option<String>,
+  workdir: Option<String>,
+  user: Option<String>,
+}
+
+impl ContainerExecParams {
+  pub fn builder() -> ContainerExecBuilder {
+    ContainerExecBuilder::new()
+  }
+}
+
+impl ContainerExecBuilder {
+  pub fn new() -> ContainerExecBuilder {
+    ContainerExecBuilder::default()
+  }
+  pub fn id(mut self, value: String) -> ContainerExecBuilder {
+    self.id = Some(value);
+    self
+  }
+  pub fn cmd(mut self, value: String) -> ContainerExecBuilder {
+    self.cmd = Some(value);
+    self
+  }
+  pub fn tty(mut self, value: bool) -> ContainerExecBuilder {
+    self.tty = Some(value);
+    self
+  }
+  pub fn stdout(mut self, value: bool) -> ContainerExecBuilder {
+    self.stdout = Some(value);
+    self
+  }
+  pub fn stdin(mut self, value: bool) -> ContainerExecBuilder {
+    self.stdin = Some(value);
+    self
+  }
+  pub fn stderr(mut self, value: bool) -> ContainerExecBuilder {
+    self.stderr = Some(value);
+    self
+  }
+  pub fn detach(mut self, value: bool) -> ContainerExecBuilder {
+    self.detach = Some(value);
+    self
+  }
+  pub fn stream(mut self, value: bool) -> ContainerExecBuilder {
+    self.stream = Some(value);
+    self
+  }
+  pub fn socket(mut self, value: bool) -> ContainerExecBuilder {
+    self.socket = Some(value);
+    self
+  }
+  pub fn privileged(mut self, value: bool) -> ContainerExecBuilder {
+    self.privileged = Some(value);
+    self
+  }
+  pub fn demux(mut self, value: bool) -> ContainerExecBuilder {
+    self.demux = Some(value);
+    self
+  }
+  pub fn environment(mut self, value: String) -> ContainerExecBuilder {
+    self.environment = Some(value);
+    self
+  }
+  pub fn workdir(mut self, value: String) -> ContainerExecBuilder {
+    self.workdir = Some(value);
+    self
+  }
+  pub fn user(mut self, value: String) -> ContainerExecBuilder {
+    self.user = Some(value);
+    self
+  }
+  pub fn build(self) -> ContainerExecParams {
+    ContainerExecParams {
+      id: self.id,
+      cmd: self.cmd.unwrap(),
+      tty: self.tty,
+      stdout: self.stdout,
+      stdin: self.stdin,
+      stderr: self.stderr,
+      detach: self.detach,
+      stream: self.stream,
+      socket: self.socket,
+      privileged: self.privileged,
+      demux: self.demux,
+      environment: self.environment,
+      workdir: self.workdir,
+      user: self.user,
+    }
+  }
+}
+
 impl Payload<ContainerExecParams> for ContainerExecParams {
   fn payload(&self) -> ContainerExecParams {
     ContainerExecParams {
@@ -369,14 +494,47 @@ impl Payload<ContainerExecParams> for ContainerExecParams {
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct ContainerExecCommandParams {
   pub cmd: String,
+  pub working_dir: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct ContainerLsParams {
-  pub working_dir: String,
-  pub user: Option<String>,
-  pub ls_args: Option<String>,
+  pub id: String,
+  pub path: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerCommonParams {
+  pub id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerFileInfo {
+  name: Option<String>,
+  file_type: Option<String>,
+  owner: Option<String>,
+  group: Option<String>,
+  size: Option<i32>,
+  created: Option<String>,
+  modified: Option<String>,
+  perm: Option<String>,
+  is_dir: Option<bool>,
+  path: Option<String>,
+  parent: Option<String>,
+  real_path: Option<String>,
+  id: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerLsResponse {
+  pub items: Vec<ContainerFileInfo>,
+  count: Option<i32>,
+  dirs: Option<i32>,
+  files: Option<i32>,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
@@ -553,20 +711,97 @@ pub struct ConnectionTestResponse {
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct MountPoint {
-  mount_type: String,
+  mount_type: Option<String>,
   source: String,
   destination: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
+#[serde(rename_all = "PascalCase")]
 pub struct PortBinding {
   host_ip: String,
-  port: String,
+  host_port: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export, export_to = "../../src/app/lib/bindings/")]
 pub struct PortBindings {
   bindings: HashMap<String, PortBinding>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+#[serde(rename_all = "PascalCase")]
+pub struct DeleteResponse {
+  deleted: String,
+  tagged: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+#[serde(rename_all = "PascalCase")]
+pub struct ImagePruneReport {
+  images: Option<Vec<DeleteResponse>>,
+  space_reclaimed: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ImagePruneResponse {
+  pub report: Option<ImagePruneReport>,
+  pub error: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+#[serde(rename_all = "PascalCase")]
+pub struct ContainerPruneReport {
+  containers_deleted: Option<Vec<String>>,
+  space_reclaimed: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerPruneResponse {
+  pub report: Option<ContainerPruneReport>,
+  pub error: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct TermExecParams {
+  pub title: Option<String>,
+  pub cwd: Option<String>,
+  pub cmd: Option<String>,
+  pub user: Option<String>,
+  pub host: Option<String>,
+  pub port: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerHostInfoQueryParams {
+  pub id: String,
+  pub hostname: Option<bool>,
+  pub user: Option<bool>,
+  pub ssh: Option<bool>,
+  pub ip: Option<bool>,
+  pub ls: Option<bool>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerHostInfo {
+  pub hostname: Option<String>,
+  pub user: Option<String>,
+  pub ssh: Option<PortBinding>,
+  pub ip: Option<String>,
+  pub ls: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export, export_to = "../../src/app/lib/bindings/")]
+pub struct ContainerHostInfoResponse {
+  pub host: Option<ContainerHostInfo>,
 }

@@ -5,7 +5,12 @@
     "windows",
     "linux"
   ],
+  "windows": [
+    "main"
+  ],
   "permissions": [
-    "global-shortcut:default"
+    "global-shortcut:default",
+    "stronghold:default",
+    "store:default"
   ]
 }

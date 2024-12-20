@@ -16,8 +16,8 @@ pub fn init_environment() {
     db.put(b"api_port", b"8080").unwrap();
     db.put(b"ws_host", WS_HOST.as_bytes()).unwrap();
     db.put(b"ws_port", b"8080").unwrap();
-  }
-  {
-    let ws_host = get_ws_host();
+    db.put(b"auth_user", b"user").unwrap();
+    db.put(b"auth_pass", b"pass").unwrap();
+    db.put(b"auth_secret", b"secret").unwrap();
   }
 }
